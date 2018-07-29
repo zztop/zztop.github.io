@@ -134,9 +134,11 @@
                 .call(d3.axisBottom(xScale)
                     .tickFormat(d3.format("d")))
 
+
             g.append("g")
                 .call(d3.axisLeft(yScale))
                 .attr("class", "y axis")
+
 
 
             color.domain(selectedGender);
@@ -149,7 +151,7 @@
                 .attr("cy", function (d) { return yScale(+d.number) })
                 .attr("r", 5)
                 .attr('fill', (data) => {
-                    return data.visible ? color(data.gender) : '#F1F1F2'
+                    return data.visible ? color(data.gender) : 'rgb(241, 241, 242)'
                 })
                 .on("mouseover", function (d) {
                     g.append("text")
@@ -201,7 +203,7 @@
                 .attr("x", width + (margin.right / 3) - 15)
                 .attr("y", function (d, i) { return (legendSpace) + i * (legendSpace) - 8; })  // spacing
                 .attr("fill", function (d) {
-                    return d.visible ? color(d.gender) : "#F1F1F2"; // If array key "visible" = true then color rect, if not then make it grey 
+                    return d.visible ? color(d.gender) : "rgb(241, 241, 242)"; // If array key "visible" = true then color rect, if not then make it grey 
                 })
                 .attr("class", "legend-box")
 
@@ -218,14 +220,14 @@
                                 return color(data.gender)
                             }
                             data.visible = d.visible && data.gender == d.gender
-                            return d.visible && data.gender == d.gender ? color(data.gender) : "#F1F1F2";
+                            return d.visible && data.gender == d.gender ? color(data.gender) : "rgb(241, 241, 242)";
                         });
 
 
                     genderCategory.select("rect")
                         .transition()
                         .attr("fill", function (d) {
-                            return d.visible ? color(d.gender) : "#F1F1F2";
+                            return d.visible ? color(d.gender) : "rgb(241, 241, 242)";
                         });
                 })
 
@@ -245,7 +247,7 @@
                     d3.select(this)
                         .transition()
                         .attr("fill", function (d) {
-                            return d.visible ? color(d.gender) : "#F1F1F2";
+                            return d.visible ? color(d.gender) : "rgb(241, 241, 242)";
                         });
 
                     d3.select("#line-" + d.gender.replace(" ", "").replace("/", ""))
@@ -259,7 +261,15 @@
                 .text(function (d) { return d.gender; });
 
 
+            g.append("text")
+                .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                .attr("transform", "translate(" + -40 + "," + (height / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+                .text("Name Count ");
 
+            g.append("text")
+                .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                .attr("transform", "translate(" + (width / 2) + "," + (height - (100 / 3) + 80) + ")")  // centre below axis
+                .text("Year");
         })
     },
         allMaps = function () {
@@ -323,7 +333,7 @@
                         return data.number == maxNumber ? 10 : 5
                     })
                     .attr('fill', (data) => {
-                        return data.visible ? (data.number == maxNumber ? "rgb(187, 250, 21)" : color(data.gender)) : '#F1F1F2'
+                        return data.visible ? color(data.name) : 'rgb(215, 109, 143)'
                     }).on("mouseover", function (d) {
                         g.append("text")
                             .attr("class", "title-text")
@@ -341,14 +351,15 @@
 
                 let maxCircle = d3.select('.dot.max-dot')
                 g.append('text')
+                    .attr('class', 'annot')
                     .attr("x", function () {
                         return parseInt(maxCircle.attr('cx')) + 10;
                     })
                     .attr("y", function () { return maxCircle.attr('cy'); })
                     .attr("font-family", "sans-serif")
+                    .attr("font-style", "italic")
                     .attr("font-size", "15px")
-                    .attr("fill", "red")
-                    .text('Most popular name is ' +mostPopularName );
+                    .text('Most popular name is ' + mostPopularName);
 
 
 
@@ -388,7 +399,7 @@
                     .attr("x", width + (margin.right / 3) - 15)
                     .attr("y", function (d, i) { return (legendSpace) + i * (legendSpace) - 8; })  // spacing
                     .attr("fill", function (d) {
-                        return d.visible ? color(d.name) : "#F1F1F2"; // If array key "visible" = true then color rect, if not then make it grey 
+                        return d.visible ? color(d.name) : "rgb(215, 109, 143)"; // If array key "visible" = true then color rect, if not then make it grey 
                     })
                     .attr("class", "legend-box")
 
@@ -404,13 +415,15 @@
                                     return color(data.name)
                                 }
                                 data.visible = d.visible && data.name == d.name
-                                return d.visible && data.name == d.name ? color(data.name) : "#F1F1F2";
+                                return d.visible && data.name == d.name ? color(data.name) : "rgb(241, 241, 242)";
                             });
+
+
 
                         issue.select("rect")
                             .transition()
                             .attr("fill", function (d) {
-                                return d.visible ? color(d.name) : "#F1F1F2";
+                                return d.visible ? color(d.name) : "rgb(241, 241, 242)";
                             });
                     })
 
@@ -430,7 +443,7 @@
                         d3.select(this)
                             .transition()
                             .attr("fill", function (d) {
-                                return d.visible ? color(d.name) : "#F1F1F2";
+                                return d.visible ? color(d.name) : "rgb(241, 241, 242)";
                             });
 
                         d3.select("#line-" + d.name.replace(" ", "").replace("/", ""))
@@ -444,6 +457,15 @@
                     .text(function (d) { return d.name; });
 
 
+                g.append("text")
+                    .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                    .attr("transform", "translate(" + -40 + "," + (height / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+                    .text("Name Count ");
+
+                g.append("text")
+                    .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+                    .attr("transform", "translate(" + (width / 2) + "," + (height - (100 / 3) + 80) + ")")  // centre below axis
+                    .text("Year");
 
             })
         }
