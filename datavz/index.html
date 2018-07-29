@@ -2,7 +2,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="index.css">
-<div style="position: relative;top: 20px; left: 65px;width:80%">
+<div>
+    <article class="about-note">
+        <p>The current visual narrative walks a user all popular US names and how popular names appear as a fad, that is a particular
+            name may be popular for a while, and then it is overetaken by something more fashionable</p>
+        <p>User is driven through how names evolve over the period per gender through a set of green colored Navigation Buttons
+            on the right . Each scene is represented by a button labelled with Gender and finally an All gender button lets
+            user explore and compare names between gender in a given period of time. Button labelled Next helps user follow
+            scenes serially. </p>
+        <p>
+            <ul>Each scene has two charts filtered by Gender
+                <li> Count of most popular US names and for which year they were most popular regardless of Gender </li>
+                <li>Count of all the popular names for that Gender
+                </li>
+            </ul>
+        </p>
+        <p>
+            <ul>We have used several parameters and triggers to render the visualiztion.
+                <li>Navigation buttons changes Gender Parameter by trigger of click events</li>
+                <li>On hovering data points we can see the data behind those points</li>
+                <li>On the right user is presented with a list which lists categories of data available. For first chart it list
+                    all Names and second Gender. Clicking on these filters parametrizes the charts with Name and Gender respectively
+                    triggering chart filtering</li>
+            </ul>
+        </p>
+        <p>Also to draw user attention to the most popular name we have used annotations. Most popular data point is made prominent and it shows the popular name in italics</p>
+        <p>Dataset for the chart has been collected from https://bigquery.cloud.google.com/dataset/bigquery-public-data:usa_names?pli=1
+        </p>
+        <p>
+            <ul>Several references were used to create the chart. They are
+                <li><a href="http://bl.ocks.org/DStruths/9c042e3a6b66048b5bd4">http://bl.ocks.org/DStruths/9c042e3a6b66048b5bd4</a></li>
+                <li><a href="http://bl.ocks.org/fabiomainardi/cf1233873ea5e7bc899b">http://bl.ocks.org/fabiomainardi/cf1233873ea5e7bc899b</a></li>
+                <li><a href="https://www.dashingd3js.com/svg-text-element">https://www.dashingd3js.com/svg-text-element</a></li>
+                <li><a href="http://bl.ocks.org/phoebebright/3061203">http://bl.ocks.org/phoebebright/3061203</a></li>
+
+            </ul>
+        </p>
+    </article>
+    <button onclick="aboutClicked()" class='about'>About</button>
+</div>
+<div class='viz' style="display:none;position: relative;top: 20px; left: 65px;width:80%">
     <div class=" left-item" style=" ">
         <article class="btn-group">
             <a href="#" onclick="selectGender('M',this)" data-scene="1" class="scene  on">Male</a>
@@ -39,22 +78,28 @@
 
 <script>
     let selectedGender = ['M'],
-        genderText = 'Male'
-    noteMale =
+        genderText = 'Male',
+        noteMale =
 
-        `<li>Male names have been more popular during middle ages between 1930-2010</li> 
+            `<li>Male names have been more popular during middle ages between 1930-2010</li> 
             <li>Popular male names remain unchanged for long period of times.</li>
             <li>We also see popularity of names diminish in recent years, possibly due to parents keeping more diverse names of their male kids </li>  
     `,
         noteFemale =
 
-        `<li>Female names have been more popular during 1910-1930 and in more recent years</li> 
+            `<li>Female names have been more popular during 1910-1930 and in more recent years</li> 
             <li>We also see popularity of names diminish in recent years, similar to males </li>  
     `,
         noteAll = `
         <li>We can see more clearly that overall male names have been more popular than female names</li>
     <li> As mentioned in the previous scenes there is a decline in number of popular names for the male and female in recent years</li>`,
-        selectedText = noteMale;
+        selectedText = noteMale,
+        isAboutEnabled = true
+    function aboutClicked() {
+        isAboutEnabled = !isAboutEnabled
+        document.querySelector('.about-note').style.display = isAboutEnabled ? 'block' : 'none'
+        document.querySelector('.viz').style.display = !isAboutEnabled ? 'block' : 'none'
+    }
     function selectGender(gend, e) {
         if (gend == 'All') {
             selectedGender = ['M', 'F']
