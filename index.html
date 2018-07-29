@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="index.css">
+<div style="position: relative;top: 20px; left: 65px;width:80%">
+    <div class=" left-item" style=" ">
+        <article class="btn-group">
+            <a href="#" onclick="selectGender('M',this)" data-scene="1" class="scene  on">Male</a>
+            <a href="#" onclick="selectGender('F',this)" data-scene="2" class="scene ">Female</a>
+            <a href="#" onclick="selectGender('All',this)" data-scene="3" class="scene ">All</a>
+            <a href="#" class="round" onclick="onNext()">Next &raquo;</a>
+        </article>
+        <article style="top: 40px;">
+            <ul class="notes" style=""></ul>
+        </article>
+    </div>
+
+    <article class="right-item">
+        <h3>Most popular US names over the years filtered by
+            <em class='heading'></em> gender
+        </h3>
+        <svg class="all" width="960" height="500"></svg>
+
+        <h3>Most popular US names for a given year by gender over the years for
+            <em class='heading'></em> gender
+        </h3>
+        <svg class="gender" width="960" height="500"></svg>
+    </article>
+
+</div>
+<!-- Body tag is where we will append our SVG and SVG objects-->
+
+
+<body>
+</body>
+
+<!-- Load in the d3 library -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+    let selectedGender = ['M'],
+        genderText = 'Male'
+    noteMale =
+
+        `<li>Male names have been more popular during middle ages between 1930-2010</li> 
+            <li>Popular male names remain unchanged for long period of times.</li>
+            <li>We also see popularity of names diminish in recent years, possibly due to parents keeping more diverse names of their male kids </li>  
+    `,
+        noteFemale =
+
+        `<li>Female names have been more popular during 1910-1930 and in more recent years</li> 
+            <li>We also see popularity of names diminish in recent years, similar to males </li>  
+    `,
+        noteAll = `
+        <li>We can see more clearly that overall male names have been more popular than female names</li>
+    <li> As mentioned in the previous scenes there is a decline in number of popular names for the male and female in recent years</li>`,
+        selectedText = noteMale;
+    function selectGender(gend, e) {
+        if (gend == 'All') {
+            selectedGender = ['M', 'F']
+            selectedText = noteAll
+            genderText = 'All'
+        }
+        else {
+            selectedGender = [gend]
+            selectedText = gend == 'M' ? noteMale : noteFemale
+            genderText = gend == 'M' ? 'Male' : 'Female'
+        }
+
+        [].forEach.call(document.querySelectorAll("a.scene"), function (el) {
+            el.classList.remove("on");
+            el.disabled = false
+        });
+        e.disabled = true
+        e.classList.add('on')
+        d3.selectAll("svg").selectAll("*").remove();
+        genderMaps()
+        allMaps()
+
+        document.querySelector('.notes').innerHTML = selectedText
+        d3.selectAll('.heading').html(genderText)
+    }
+    function onNext() {
+        let elem = document.querySelector('.scene.on + a.scene')
+        if (!elem) {
+            return
+        }
+        elem.click()
+    }
+
+
+    let genderMaps = function () {
+
+
+
+        let svg = d3.select("svg.gender"),
+            margin = { top: 20, right: 200, bottom: 100, left: 50 },
+            width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        let xScale = d3.scaleLinear()
+            .rangeRound([0, width]);
+
+
+        let yScale = d3.scaleLinear()
+            .rangeRound([height, 0]);
+
+        let xAxis = d3.axisBottom()
+            .scale(xScale),
+
+            yAxis = d3.axisLeft()
+                .scale(yScale);
+
+
+        var color = d3.scaleOrdinal().range(["rgb(78, 121, 167)", "rgb(237, 201, 72)"])
+        d3.csv('count_year_by_gender.csv', (data) => {
+            data.number = +data.number
+            data.visible = true
+            data.cur_year = +data.cur_year
+            data.gender = data.cur_gender
+            return data
+        }, (data) => {
+            data = data.filter((d) => {
+                return selectedGender.includes(d.gender)
+            })
+            xScale.domain([1900, 2020]);
+            yScale.domain([1000, 11000]);
+
+
+            g.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xScale)
+                    .tickFormat(d3.format("d")))
+
+            g.append("g")
+                .call(d3.axisLeft(yScale))
+                .attr("class", "y axis")
+
+
+            color.domain(selectedGender);
+
+            g.selectAll(".dot-gender")
+                .data(data)
+                .enter().append("circle") // Uses the enter().append() method
+                .attr("class", "dot-gender") // Assign a class for styling
+                .attr("cx", function (d) { return xScale(+d.cur_year) })
+                .attr("cy", function (d) { return yScale(+d.number) })
+                .attr("r", 5)
+                .attr('fill', (data) => {
+                    return data.visible ? color(data.gender) : '#F1F1F2'
+                })
+                .on("mouseover", function (d) {
+                    g.append("text")
+                        .attr("class", "title-text")
+                        .attr('fill', () => {
+                            return color(d.gender)
+                        })
+                        .text('Name : ' + d.name + ', Count : ' + d.number)
+                        .attr("text-anchor", "middle")
+                        .attr("x", (width - margin.left) / 2)
+                        .attr("y", 5);
+                })
+                .on("mouseout", function (d) {
+                    g.select(".title-text").remove();
+                })
+
+
+
+            let categories = []
+            categories = selectedGender.map((data) => {
+                return {
+                    gender: data,
+                    visible: true
+                }
+            })
+
+
+            var genderCategory = svg.selectAll(".gender-cat")
+                .data(categories) // Select nested data and append to new svg group elements
+                .enter().append("g")
+                .attr("class", "gender-cat")
+                .attr("class", "param");
+
+            genderCategory.append("path")
+                .attr("class", "line")
+                .style("pointer-events", "none") // Stop line interferring with cursor
+                .attr("id", function (d) {
+                    return "line-" + d.gender.replace(" ", "").replace("/", ""); // Give line id of line-(insert issue name, with any spaces replaced with no spaces)
+                })
+                .attr("clip-path", "url(#clip)")//use clip path to make irrelevant part invisible
+                .style("stroke", function (d) { return color(d.gender); });
+
+            // draw legend
+            var legendSpace = 100 / categories.length; // 450/number of issues (ex. 40)    
+
+            genderCategory.append("rect")
+                .attr("width", 10)
+                .attr("height", 10)
+                .attr("x", width + (margin.right / 3) - 15)
+                .attr("y", function (d, i) { return (legendSpace) + i * (legendSpace) - 8; })  // spacing
+                .attr("fill", function (d) {
+                    return d.visible ? color(d.gender) : "#F1F1F2"; // If array key "visible" = true then color rect, if not then make it grey 
+                })
+                .attr("class", "legend-box")
+
+                .on("click", function (d) { // On click make d.visible 
+                    d.visible = !d.visible; // If array key for this data selection is "visible" = true then make it false, if false then make it true
+
+
+
+
+                    g.selectAll(".dot-gender")
+                        .transition()
+                        .attr("fill", function (data) {
+                            if (data.visible && data.gender != d.gender) {
+                                return color(data.gender)
+                            }
+                            data.visible = d.visible && data.gender == d.gender
+                            return d.visible && data.gender == d.gender ? color(data.gender) : "#F1F1F2";
+                        });
+
+
+                    genderCategory.select("rect")
+                        .transition()
+                        .attr("fill", function (d) {
+                            return d.visible ? color(d.gender) : "#F1F1F2";
+                        });
+                })
+
+                .on("mouseover", function (d) {
+
+                    d3.select(this)
+                        .transition()
+                        .attr("fill", function (d) { return color(d.gender); });
+
+                    d3.select("#line-" + d.gender.replace(" ", "").replace("/", ""))
+                        .transition()
+                        .style("stroke-width", 2.5);
+                })
+
+                .on("mouseout", function (d) {
+
+                    d3.select(this)
+                        .transition()
+                        .attr("fill", function (d) {
+                            return d.visible ? color(d.gender) : "#F1F1F2";
+                        });
+
+                    d3.select("#line-" + d.gender.replace(" ", "").replace("/", ""))
+                        .transition()
+                        .style("stroke-width", 1.5);
+                })
+
+            genderCategory.append("text")
+                .attr("x", width + (margin.right / 3))
+                .attr("y", function (d, i) { return (legendSpace) + i * (legendSpace); })  // (return (11.25/2 =) 5.625) + i * (5.625) 
+                .text(function (d) { return d.gender; });
+
+
+
+        })
+    },
+        allMaps = function () {
+            let svg = d3.select("svg.all"),
+                margin = { top: 20, right: 200, bottom: 100, left: 50 },
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom,
+                g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            let xScale = d3.scaleLinear()
+                .rangeRound([0, width]);
+
+
+            let yScale = d3.scaleLinear()
+                .rangeRound([height, 0]);
+
+
+
+            var color = d3.scaleOrdinal().range(["#48A36D", "rgb(225, 87, 89)", "rgb(156, 117, 95)", "rgb(227, 119, 86)", "rgb(215, 109, 143)", "rgb(127, 187, 207)", "rgb(255, 157, 167)", "rgb(170, 129, 197)", "rgb(83, 81, 84)", "rgb(114, 147, 203)"]);
+            d3.csv('count_year_date_gender.csv', (data) => {
+                data.number = +data.number
+                data.visible = true
+                data.cur_year = +data.cur_year
+                return data
+            }, (data) => {
+                data = data.filter((d) => {
+                    return selectedGender.includes(d.gender)
+                })
+                xScale.domain([1900, 2020]);
+                yScale.domain([1000, 11000]);
+
+                const maxNumber = Math.max(...data.map(o => o.number));
+                const mostPopularName = data.filter((d) => {
+                    return d.number == maxNumber
+                })[0].name
+
+                g.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+
+
+                g.append("g")
+                    .call(d3.axisLeft(yScale))
+                    .attr("class", "y axis")
+
+
+                color.domain(Array.from(new Set(data.map((d) => {
+                    return d.name
+                }))));
+
+                g.selectAll(".dot")
+                    .data(data)
+                    .enter().append("circle") // Uses the enter().append() method
+                    .attr("class", (data) => {
+                        return data.number == maxNumber ? 'dot max-dot' : 'dot'
+                    })
+                    .attr("cx", function (d) { return xScale(+d.cur_year) })
+                    .attr("cy", function (d) { return yScale(d.number) })
+                    .attr("r", (data) => {
+                        return data.number == maxNumber ? 10 : 5
+                    })
+                    .attr('fill', (data) => {
+                        return data.visible ? (data.number == maxNumber ? "rgb(187, 250, 21)" : color(data.gender)) : '#F1F1F2'
+                    }).on("mouseover", function (d) {
+                        g.append("text")
+                            .attr("class", "title-text")
+                            .attr('fill', () => {
+                                return color(d.name)
+                            })
+                            .text('Name : ' + d.name + ', Count : ' + d.number + ', Gender : ' + d.gender)
+                            .attr("text-anchor", "middle")
+                            .attr("x", (width - margin.left) / 2)
+                            .attr("y", 5);
+                    })
+                    .on("mouseout", function (d) {
+                        g.select(".title-text").remove();
+                    })
+
+                let maxCircle = d3.select('.dot.max-dot')
+                g.append('text')
+                    .attr("x", function () {
+                        return parseInt(maxCircle.attr('cx')) + 10;
+                    })
+                    .attr("y", function () { return maxCircle.attr('cy'); })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "15px")
+                    .attr("fill", "red")
+                    .text('Most popular name is ' +mostPopularName );
+
+
+
+
+                let categories = []
+                categories = Array.from(new Set(data.map((d) => {
+                    return d.name
+                }))).map((data) => {
+                    return {
+                        name: data,
+                        visible: true
+                    }
+                })
+
+                var issue = svg.selectAll(".issue")
+                    .data(categories) // Select nested data and append to new svg group elements
+                    .enter().append("g")
+                    .attr("class", "issue")
+                    .attr("class", "param");
+
+                issue.append("path")
+                    .attr("class", "line")
+                    .style("pointer-events", "none") // Stop line interferring with cursor
+                    .attr("id", function (d) {
+                        return "line-" + d.name.replace(" ", "").replace("/", ""); // Give line id of line-(insert issue name, with any spaces replaced with no spaces)
+                    })
+
+                    .attr("clip-path", "url(#clip)")//use clip path to make irrelevant part invisible
+                    .style("stroke", function (d) { return color(d.name); });
+
+                // draw legend
+                var legendSpace = 300 / categories.length; // 450/number of issues (ex. 40)    
+
+                issue.append("rect")
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .attr("x", width + (margin.right / 3) - 15)
+                    .attr("y", function (d, i) { return (legendSpace) + i * (legendSpace) - 8; })  // spacing
+                    .attr("fill", function (d) {
+                        return d.visible ? color(d.name) : "#F1F1F2"; // If array key "visible" = true then color rect, if not then make it grey 
+                    })
+                    .attr("class", "legend-box")
+
+                    .on("click", function (d) { // On click make d.visible 
+                        d.visible = !d.visible; // If array key for this data selection is "visible" = true then make it false, if false then make it true
+
+
+
+                        g.selectAll(".dot")
+                            .transition()
+                            .attr("fill", function (data) {
+                                if (data.visible && data.name != d.name) {
+                                    return color(data.name)
+                                }
+                                data.visible = d.visible && data.name == d.name
+                                return d.visible && data.name == d.name ? color(data.name) : "#F1F1F2";
+                            });
+
+                        issue.select("rect")
+                            .transition()
+                            .attr("fill", function (d) {
+                                return d.visible ? color(d.name) : "#F1F1F2";
+                            });
+                    })
+
+                    .on("mouseover", function (d) {
+
+                        d3.select(this)
+                            .transition()
+                            .attr("fill", function (d) { return color(d.name); });
+
+                        d3.select("#line-" + d.name.replace(" ", "").replace("/", ""))
+                            .transition()
+                            .style("stroke-width", 2.5);
+                    })
+
+                    .on("mouseout", function (d) {
+
+                        d3.select(this)
+                            .transition()
+                            .attr("fill", function (d) {
+                                return d.visible ? color(d.name) : "#F1F1F2";
+                            });
+
+                        d3.select("#line-" + d.name.replace(" ", "").replace("/", ""))
+                            .transition()
+                            .style("stroke-width", 1.5);
+                    })
+
+                issue.append("text")
+                    .attr("x", width + (margin.right / 3))
+                    .attr("y", function (d, i) { return (legendSpace) + i * (legendSpace); })  // (return (11.25/2 =) 5.625) + i * (5.625) 
+                    .text(function (d) { return d.name; });
+
+
+
+            })
+        }
+
+    genderMaps()
+    allMaps()
+    document.querySelector('.notes').innerHTML = selectedText
+    d3.selectAll('.heading').html(genderText)
+
+
+
+</script>
+<script>
+
+</script>

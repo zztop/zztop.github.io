@@ -1,0 +1,117 @@
+.line {
+    fill: none;
+    stroke: #ffab00;
+    stroke-width: 3;
+}
+
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+
+/* Style the dots by assigning a fill and stroke */
+
+.dot,
+.dot-gender {
+    /* fill: #ffab00; */
+    stroke: #fff;
+}
+
+.focus {
+    fill: none;
+    stroke: steelblue;
+}
+
+.line {
+    fill: none;
+    stroke-width: 1.5px;
+}
+
+.legend-box {
+    cursor: pointer;
+}
+
+.axis path,
+.axis line_gender {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+/* .x.axis path {
+    display: none;
+} */
+
+.line_gender {
+    fill: none;
+    /* stroke: steelblue; */
+    stroke-width: 1.5px;
+}
+
+.title-text {
+    /* fill: rgb(78, 121, 167); */
+    font-weight: bold
+}
+
+.btn-group a {
+    background-color: #4CAF50;
+    /* Green background */
+    border: 1px solid green;
+    /* Green border */
+    color: white;
+    /* White text */
+    padding: 1em 1em;
+    /* Some padding */
+    cursor: pointer;
+    /* Pointer/hand icon */
+    float: left;
+    /* Float the buttons side by side */
+    text-decoration: none;
+}
+
+/* Clear floats (clearfix hack) */
+
+.btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.btn-group a:not(:last-child) {
+    border-right: none;
+    /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+
+.btn-group a:hover,.btn-group a.on {
+    background-color: #3e8e41;
+}
+article{
+    margin-top: 3em
+}
+
+
+.left-item{
+    position: sticky;
+    top: 20px;
+    width:25%; 
+    float :right
+}
+.right-item{
+
+    width:75%; 
+}
+
+@media only screen and (max-width: 1440px){
+    .left-item{
+        position: relative;
+        width:100%;
+        float :none
+    }
+    .right-item{
+        position: relative;
+        float :none;
+        width:100%; 
+    }
+}
